@@ -1,13 +1,13 @@
 {
     "name": "kuria/enum",
-    "description": "Emulated enumeration objects in PHP.",
+    "description": "Emulated enumeration objects in PHP",
     "keywords": ["enum", "enumeration"],
     "license": "MIT",
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=7.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.2"
+        "phpunit/phpunit": "^6.5"
     },
     "autoload": {
         "psr-4": {
