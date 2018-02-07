@@ -48,6 +48,10 @@ Defining an enum class
        const SUNDAY = 6;
    }
 
+.. NOTE::
+
+   Private and protected constants are ignored.
+
 
 Supported value types
 =====================
@@ -198,7 +202,7 @@ Creating enum instances
 
    Instances created by ``fromValue()``, ``fromKey()`` and the static magic factory
    methods are cached internally and reused.
-   
+
    Multiple calls to the factory methods with the same value or key will yield
    the same instance.
 

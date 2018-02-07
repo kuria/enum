@@ -349,8 +349,16 @@ abstract class Enum implements EnumInterface
      */
     protected static function determineKeyToValueMap(): array
     {
-        // use all constants of current class
-        return (new \ReflectionClass(static::class))->getConstants();
+        // use all public constants of current class
+        $keyToValueMap = [];
+
+        foreach ((new \ReflectionClass(static::class))->getReflectionConstants() as $constant) {
+            if ($constant->isPublic()) {
+                $keyToValueMap[$constant->name] = $constant->getValue();
+            }
+        }
+
+        return $keyToValueMap;
     }
 
     /**
