@@ -217,6 +217,13 @@ abstract class Enum implements EnumInterface
         return static::$valueToKeyMap[static::class];
     }
 
+    static function count(): int
+    {
+        static::ensureKeyToValueMapLoaded();
+
+        return sizeof(static::$keyToValueMap[static::class]);
+    }
+
     function getKey(): string
     {
         return $this->key;

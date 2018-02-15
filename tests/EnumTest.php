@@ -52,6 +52,7 @@ class EnumTest extends TestCase
         $this->assertSame(['LOREM' => true, 'IPSUM' => true, 'DOLOR' => true], TestEnum::getKeyMap());
         $this->assertSame(['LOREM' => 'foo', 'IPSUM' => 123, 'DOLOR' => null], TestEnum::getKeyToValueMap());
         $this->assertSame(['foo' => 'LOREM', 123 => 'IPSUM', null => 'DOLOR'], TestEnum::getValueToKeyMap());
+        $this->assertSame(3, TestEnum::count());
     }
 
     function testExceptionWhenCreatingFromInvalidKey()

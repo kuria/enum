@@ -195,6 +195,22 @@ Output:
   )
 
 
+Counting members
+----------------
+
+.. code:: php
+
+   <?php
+
+   var_dump(DayOfTheWeek::count());
+
+Output:
+
+::
+
+  int(7)
+
+
 Creating enum instances
 =======================
 
