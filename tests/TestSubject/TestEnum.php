@@ -10,6 +10,7 @@ use Kuria\Enum\Enum;
  * @method static TestEnum LOREM()
  * @method static TestEnum IPSUM()
  * @method static TestEnum DOLOR()
+ * @method static TestEnum _UNKNOWN_KEY_() doesn't actually exist
  */
 class TestEnum extends Enum
 {

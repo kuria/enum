@@ -58,7 +58,10 @@ class EnumTest extends TestCase
     function testExceptionWhenCreatingFromInvalidKey()
     {
         $this->expectException(InvalidKeyException::class);
-        $this->expectExceptionMessage('The key "__NONEXISTENT_KEY__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum", known keys: LOREM, IPSUM, DOLOR');
+        $this->expectExceptionMessage(
+            'The key "__NONEXISTENT_KEY__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
+                . ', known keys: LOREM, IPSUM, DOLOR'
+        );
 
         TestEnum::fromKey('__NONEXISTENT_KEY__');
     }
@@ -66,7 +69,10 @@ class EnumTest extends TestCase
     function testExceptionWhenCreatingFromInvalidValue()
     {
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('The value "__NONEXISTENT_VALUE__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum", known values: "foo", 123, NULL');
+        $this->expectExceptionMessage(
+            'The value "__NONEXISTENT_VALUE__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
+                . ', known values: "foo", 123, NULL'
+        );
 
         TestEnum::fromValue('__NONEXISTENT_VALUE__');
     }
@@ -83,7 +89,9 @@ class EnumTest extends TestCase
     function testExceptionOnDuplicateValues()
     {
         $this->expectException(DuplicateValueException::class);
-        $this->expectExceptionMessageRegExp('{^Duplicate value "value" for key "DUPLICATE_VALUE" in enum class ".+"\. Value "value" is already defined for key "VALUE"\.$}');
+        $this->expectExceptionMessageRegExp(
+            '{^Duplicate value "value" for key "DUPLICATE_VALUE" in enum class ".+"\. Value "value" is already defined for key "VALUE"\.$}'
+        );
 
         DuplicateValuesEnum::fromValue('value');
     }
@@ -91,7 +99,9 @@ class EnumTest extends TestCase
     function testExceptionOnDuplicateValueBecauseNumericStringArrayKeyIsCoercedToInteger()
     {
         $this->expectException(DuplicateValueException::class);
-        $this->expectExceptionMessageRegExp('{^Duplicate value "123" for key "DUPLICATE_VALUE" in enum class ".+"\. Value 123 is already defined for key "VALUE"\.$}');
+        $this->expectExceptionMessageRegExp(
+            '{^Duplicate value "123" for key "DUPLICATE_VALUE" in enum class ".+"\. Value 123 is already defined for key "VALUE"\.$}'
+        );
 
         DuplicateCoercedIntEnum::fromValue(123);
     }
@@ -99,7 +109,9 @@ class EnumTest extends TestCase
     function testExceptionOnDuplicateValueBecauseNullArrayKeyIsCoercedToEmptyString()
     {
         $this->expectException(DuplicateValueException::class);
-        $this->expectExceptionMessageRegExp('{^Duplicate value "" for key "DUPLICATE_VALUE" in enum class ".+"\. Value NULL is already defined for key "VALUE"\.$}');
+        $this->expectExceptionMessageRegExp(
+            '{^Duplicate value "" for key "DUPLICATE_VALUE" in enum class ".+"\. Value NULL is already defined for key "VALUE"\.$}'
+        );
 
         DuplicateCoercedNullEnum::fromValue(null);
     }
@@ -173,7 +185,10 @@ class EnumTest extends TestCase
         TestEnum::ensureKeyExists('LOREM');
 
         $this->expectException(InvalidKeyException::class);
-        $this->expectExceptionMessage('The key "__NONEXISTENT_KEY__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum", known keys: LOREM, IPSUM, DOLOR');
+        $this->expectExceptionMessage(
+            'The key "__NONEXISTENT_KEY__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
+                . ', known keys: LOREM, IPSUM, DOLOR'
+        );
 
         TestEnum::ensureKeyExists('__NONEXISTENT_KEY__');
     }
@@ -183,7 +198,10 @@ class EnumTest extends TestCase
         TestEnum::ensureValueExists('foo');
 
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage('The value "__NONEXISTENT_VALUE__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum", known values: "foo", 123, NULL');
+        $this->expectExceptionMessage(
+            'The value "__NONEXISTENT_VALUE__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
+                . ', known values: "foo", 123, NULL'
+        );
 
         TestEnum::ensureValueExists('__NONEXISTENT_VALUE__');
     }

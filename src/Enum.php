@@ -29,7 +29,7 @@ abstract class Enum implements EnumInterface
      *
      * @var array
      */
-    protected static $keyMap = [];
+    private static $keyMap = [];
 
     /**
      * Key-value map (lazy)
@@ -38,7 +38,7 @@ abstract class Enum implements EnumInterface
      *
      * @var array[]
      */
-    protected static $keyToValueMap = [];
+    private static $keyToValueMap = [];
 
     /**
      * Value-key map (lazy)
@@ -48,7 +48,7 @@ abstract class Enum implements EnumInterface
      *
      * @var array[]
      */
-    protected static $valueToKeyMap = [];
+    private static $valueToKeyMap = [];
 
     /**
      * Instance cache
@@ -57,12 +57,12 @@ abstract class Enum implements EnumInterface
      *
      * @var array
      */
-    protected static $instanceCache = [];
+    private static $instanceCache = [];
 
     /** @var string */
-    protected $key;
+    private $key;
     /** @var string|int|null */
-    protected $value;
+    private $value;
 
     /**
      * Internal constructor
@@ -100,13 +100,14 @@ abstract class Enum implements EnumInterface
      */
     static function __callStatic(string $name, array $arguments)
     {
-        static::ensureKeyMapLoaded();
+        self::ensureKeyMapLoaded();
 
-        if (!isset(static::$keyMap[static::class][$name])) {
+        if (!isset(self::$keyMap[static::class][$name])) {
             throw new \BadMethodCallException(sprintf('Call to undefined static method %s::%s()', static::class, $name));
         }
 
-        return static::$instanceCache[static::class][$name] ?? (static::$instanceCache[static::class][$name] = new static($name, static::$keyToValueMap[static::class][$name]));
+        return self::$instanceCache[static::class][$name]
+            ?? (self::$instanceCache[static::class][$name] = new static($name, self::$keyToValueMap[static::class][$name]));
     }
 
     /**
@@ -117,9 +118,10 @@ abstract class Enum implements EnumInterface
      */
     static function fromKey(string $key)
     {
-        static::ensureKeyExists($key);
+        self::ensureKeyExists($key);
 
-        return static::$instanceCache[static::class][$key] ?? (static::$instanceCache[static::class][$key] = new static($key, static::$keyToValueMap[static::class][$key]));
+        return self::$instanceCache[static::class][$key]
+            ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
     }
 
     /**
@@ -130,16 +132,17 @@ abstract class Enum implements EnumInterface
      */
     static function fromValue($value)
     {
-        $key = static::findKeyByValue($value);
+        $key = self::findKeyByValue($value);
 
-        return static::$instanceCache[static::class][$key] ?? (static::$instanceCache[static::class][$key] = new static($key, static::$keyToValueMap[static::class][$key]));
+        return self::$instanceCache[static::class][$key]
+            ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
     }
 
     static function hasKey(string $key): bool
     {
-        static::ensureKeyMapLoaded();
+        self::ensureKeyMapLoaded();
 
-        return isset(static::$keyMap[static::class][$key]);
+        return isset(self::$keyMap[static::class][$key]);
     }
 
     /**
@@ -149,9 +152,9 @@ abstract class Enum implements EnumInterface
      */
     static function hasValue($value): bool
     {
-        static::ensureValueToKeyMapLoaded();
+        self::ensureValueToKeyMapLoaded();
 
-        return isset(static::$valueToKeyMap[static::class][$value]);
+        return isset(self::$valueToKeyMap[static::class][$value]);
     }
 
     /**
@@ -160,9 +163,9 @@ abstract class Enum implements EnumInterface
      */
     static function findValueByKey(string $key)
     {
-        static::ensureKeyExists($key);
+        self::ensureKeyExists($key);
 
-        return static::$keyToValueMap[static::class][$key];
+        return self::$keyToValueMap[static::class][$key];
     }
 
     /**
@@ -171,9 +174,9 @@ abstract class Enum implements EnumInterface
      */
     static function findKeyByValue($value): string
     {
-        static::ensureValueExists($value);
+        self::ensureValueExists($value);
 
-        return static::$valueToKeyMap[static::class][$value];
+        return self::$valueToKeyMap[static::class][$value];
     }
 
     /**
@@ -181,9 +184,9 @@ abstract class Enum implements EnumInterface
      */
     static function getKeys(): array
     {
-        static::ensureKeyToValueMapLoaded();
+        self::ensureKeyToValueMapLoaded();
 
-        return array_keys(static::$keyToValueMap[static::class]);
+        return array_keys(self::$keyToValueMap[static::class]);
     }
 
     /**
@@ -191,37 +194,37 @@ abstract class Enum implements EnumInterface
      */
     static function getValues(): array
     {
-        static::ensureKeyToValueMapLoaded();
+        self::ensureKeyToValueMapLoaded();
 
-        return array_values(static::$keyToValueMap[static::class]);
+        return array_values(self::$keyToValueMap[static::class]);
     }
 
     static function getKeyMap(): array
     {
-        static::ensureKeyMapLoaded();
+        self::ensureKeyMapLoaded();
 
-        return static::$keyMap[static::class];
+        return self::$keyMap[static::class];
     }
 
     static function getKeyToValueMap(): array
     {
-        static::ensureKeyToValueMapLoaded();
+        self::ensureKeyToValueMapLoaded();
 
-        return static::$keyToValueMap[static::class];
+        return self::$keyToValueMap[static::class];
     }
 
     static function getValueToKeyMap(): array
     {
-        static::ensureValueToKeyMapLoaded();
+        self::ensureValueToKeyMapLoaded();
 
-        return static::$valueToKeyMap[static::class];
+        return self::$valueToKeyMap[static::class];
     }
 
     static function count(): int
     {
-        static::ensureKeyToValueMapLoaded();
+        self::ensureKeyToValueMapLoaded();
 
-        return sizeof(static::$keyToValueMap[static::class]);
+        return sizeof(self::$keyToValueMap[static::class]);
     }
 
     function getKey(): string
@@ -247,9 +250,9 @@ abstract class Enum implements EnumInterface
      */
     function equals($value): bool
     {
-        static::ensureValueToKeyMapLoaded();
+        self::ensureValueToKeyMapLoaded();
 
-        return $this->key === (static::$valueToKeyMap[static::class][$value] ?? null);
+        return $this->key === (self::$valueToKeyMap[static::class][$value] ?? null);
     }
 
     /**
@@ -257,12 +260,12 @@ abstract class Enum implements EnumInterface
      */
     static function ensureKeyExists(string $key)
     {
-        if (!static::hasKey($key)) {
+        if (!self::hasKey($key)) {
             throw new InvalidKeyException(sprintf(
                 'The key "%s" is not defined in enum class "%s", known keys: %s',
                 $key,
                 static::class,
-                implode(', ', static::getKeys())
+                implode(', ', self::getKeys())
             ));
         }
     }
@@ -273,53 +276,53 @@ abstract class Enum implements EnumInterface
      */
     static function ensureValueExists($value)
     {
-        if (!static::hasValue($value)) {
+        if (!self::hasValue($value)) {
             throw new InvalidValueException(sprintf(
                 'The value %s is not defined in enum class "%s", known values: %s',
-                static::dumpValue($value),
+                self::dumpValue($value),
                 static::class,
-                implode(', ', array_map([static::class, 'dumpValue'], static::getValues()))
+                implode(', ', array_map([static::class, 'dumpValue'], self::getValues()))
             ));
         }
     }
 
-    protected static function ensureKeyMapLoaded()
+    private static function ensureKeyMapLoaded()
     {
-        isset(static::$keyMap[static::class]) or static::loadKeyMap();
+        isset(self::$keyMap[static::class]) or self::loadKeyMap();
     }
 
-    protected static function ensureKeyToValueMapLoaded()
+    private static function ensureKeyToValueMapLoaded()
     {
-        isset(static::$keyToValueMap[static::class]) or static::loadKeyToValueMap();
+        isset(self::$keyToValueMap[static::class]) or self::loadKeyToValueMap();
     }
 
-    protected static function ensureValueToKeyMapLoaded()
+    private static function ensureValueToKeyMapLoaded()
     {
-        isset(static::$valueToKeyMap[static::class]) or static::loadValueToKeyMap();
+        isset(self::$valueToKeyMap[static::class]) or self::loadValueToKeyMap();
     }
 
-    protected static function loadKeyMap()
+    private static function loadKeyMap()
     {
-        static::ensureKeyToValueMapLoaded();
+        self::ensureKeyToValueMapLoaded();
 
-        static::$keyMap[static::class] = array_fill_keys(
-            array_keys(static::$keyToValueMap[static::class]),
+        self::$keyMap[static::class] = array_fill_keys(
+            array_keys(self::$keyToValueMap[static::class]),
             true
         );
     }
 
-    protected static function loadKeyToValueMap()
+    private static function loadKeyToValueMap()
     {
-        static::$keyToValueMap[static::class] = static::determineKeyToValueMap();
+        self::$keyToValueMap[static::class] = self::determineKeyToValueMap();
     }
 
-    protected static function loadValueToKeyMap()
+    private static function loadValueToKeyMap()
     {
-        static::ensureKeyToValueMapLoaded();
+        self::ensureKeyToValueMapLoaded();
 
         $valueToKeyMap = [];
 
-        foreach (static::$keyToValueMap[static::class] as $key => $value) {
+        foreach (self::$keyToValueMap[static::class] as $key => $value) {
             assert(
                 is_int($value) || is_string($value) || is_null($value),
                 new InvalidValueException(sprintf(
@@ -333,10 +336,10 @@ abstract class Enum implements EnumInterface
             if (isset($valueToKeyMap[$value])) {
                 throw new DuplicateValueException(sprintf(
                     'Duplicate value %s for key "%s" in enum class "%s". Value %s is already defined for key "%s".',
-                    static::dumpValue($value),
+                    self::dumpValue($value),
                     $key,
                     static::class,
-                    static::dumpValue(static::$keyToValueMap[static::class][$valueToKeyMap[$value]]),
+                    self::dumpValue(self::$keyToValueMap[static::class][$valueToKeyMap[$value]]),
                     $valueToKeyMap[$value]
                 ));
             }
@@ -344,7 +347,7 @@ abstract class Enum implements EnumInterface
             $valueToKeyMap[$value] = $key;
         }
 
-        static::$valueToKeyMap[static::class] = $valueToKeyMap;
+        self::$valueToKeyMap[static::class] = $valueToKeyMap;
     }
 
     /**
@@ -354,7 +357,7 @@ abstract class Enum implements EnumInterface
      *
      * @return array
      */
-    protected static function determineKeyToValueMap(): array
+    private static function determineKeyToValueMap(): array
     {
         // use all public constants of current class
         $keyToValueMap = [];
@@ -371,7 +374,7 @@ abstract class Enum implements EnumInterface
     /**
      * @param string|int|null $value
      */
-    protected static function dumpValue($value): string
+    private static function dumpValue($value): string
     {
         if (is_string($value)) {
             return '"' . $value . '"';

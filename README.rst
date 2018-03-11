@@ -6,6 +6,9 @@ Emulated enumeration objects in PHP.
 The interface is similar to `SplEnum <http://php.net/manual/en/class.splenum.php>`_
 but doesn't require any PHP extensions and provides more functionality.
 
+.. image:: https://travis-ci.org/kuria/enum.svg?branch=master
+   :target: https://travis-ci.org/kuria/enum
+
 .. contents::
 
 
