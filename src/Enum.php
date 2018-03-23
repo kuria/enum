@@ -224,7 +224,7 @@ abstract class Enum implements EnumInterface
     {
         self::ensureKeyToValueMapLoaded();
 
-        return sizeof(self::$keyToValueMap[static::class]);
+        return count(self::$keyToValueMap[static::class]);
     }
 
     function getKey(): string
