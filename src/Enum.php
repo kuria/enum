@@ -61,6 +61,7 @@ abstract class Enum implements EnumInterface
 
     /** @var string */
     private $key;
+
     /** @var string|int|null */
     private $value;
 
