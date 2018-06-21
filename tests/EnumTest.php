@@ -19,7 +19,7 @@ class EnumTest extends TestCase
     /**
      * @dataProvider provideKeyValue
      */
-    function testStaticInterface(string $key, $value)
+    function testShouldPerformStaticOperations(string $key, $value)
     {
         /** @var TestEnum $enum */
 
@@ -55,7 +55,7 @@ class EnumTest extends TestCase
         $this->assertSame(3, TestEnum::count());
     }
 
-    function testExceptionWhenCreatingFromInvalidKey()
+    function testShouldThrowExceptionWhenCreatingFromInvalidKey()
     {
         $this->expectException(InvalidKeyException::class);
         $this->expectExceptionMessage(
@@ -66,7 +66,7 @@ class EnumTest extends TestCase
         TestEnum::fromKey('__NONEXISTENT_KEY__');
     }
 
-    function testExceptionWhenCreatingFromInvalidValue()
+    function testShouldThrowExceptionWhenCreatingFromInvalidValue()
     {
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage(
@@ -77,7 +77,7 @@ class EnumTest extends TestCase
         TestEnum::fromValue('__NONEXISTENT_VALUE__');
     }
 
-    function testExceptionWhenCallingUnknownFactoryMethod()
+    function testShouldThrowExceptionWhenCallingUnknownFactoryMethod()
     {
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage('Call to undefined static method Kuria\Enum\TestSubject\TestEnum::_UNKNOWN_KEY_()');
@@ -86,7 +86,7 @@ class EnumTest extends TestCase
         TestEnum::_UNKNOWN_KEY_();
     }
 
-    function testExceptionOnDuplicateValues()
+    function testShouldThrowExceptionOnDuplicateValues()
     {
         $this->expectException(DuplicateValueException::class);
         $this->expectExceptionMessageRegExp(
@@ -96,7 +96,7 @@ class EnumTest extends TestCase
         DuplicateValuesEnum::fromValue('value');
     }
 
-    function testExceptionOnDuplicateValueBecauseNumericStringArrayKeyIsCoercedToInteger()
+    function testShouldThrowExceptionOnDuplicateValueBecauseNumericStringArrayKeyIsCoercedToInteger()
     {
         $this->expectException(DuplicateValueException::class);
         $this->expectExceptionMessageRegExp(
@@ -106,7 +106,7 @@ class EnumTest extends TestCase
         DuplicateCoercedIntEnum::fromValue(123);
     }
 
-    function testExceptionOnDuplicateValueBecauseNullArrayKeyIsCoercedToEmptyString()
+    function testShouldThrowExceptionOnDuplicateValueBecauseNullArrayKeyIsCoercedToEmptyString()
     {
         $this->expectException(DuplicateValueException::class);
         $this->expectExceptionMessageRegExp(
@@ -119,7 +119,7 @@ class EnumTest extends TestCase
     /**
      * @dataProvider provideKeyValue
      */
-    function testInstanceCache(string $key, $value)
+    function testShouldCacheInstances(string $key, $value)
     {
         $instance = TestEnum::fromKey($key);
 
@@ -131,7 +131,7 @@ class EnumTest extends TestCase
     /**
      * @dataProvider provideKeyValue
      */
-    function testObjectInterface(string $key, $value)
+    function testShouldPerformObjectOperations(string $key, $value)
     {
         $enum = TestEnum::fromValue($value);
 
@@ -148,7 +148,7 @@ class EnumTest extends TestCase
     /**
      * @dataProvider provideCoercibleValues
      */
-    function testValueTypeCoercion(string $enumClass, $actualValue, $coercibleValue)
+    function testShouldPerformValueTypeCoercion(string $enumClass, $actualValue, $coercibleValue)
     {
         /** @var Enum $enumClass */
         $enum = $enumClass::fromValue($actualValue);
@@ -164,7 +164,7 @@ class EnumTest extends TestCase
     /**
      * @dataProvider provideNoncoercibleValues
      */
-    function testNoncoercibleValueTypes(string $enumClass, $actualValue, $noncoercibleValue)
+    function testShouldNotCoerceIncompatibleValueTypes(string $enumClass, $actualValue, $noncoercibleValue)
     {
         /** @var Enum $enumClass */
         $enum = $enumClass::fromValue($actualValue);
@@ -180,7 +180,7 @@ class EnumTest extends TestCase
         TestEnum::findKeyByValue($noncoercibleValue);
     }
 
-    function testEnsureKeyExists()
+    function testShouldEnsureKeyExists()
     {
         TestEnum::ensureKeyExists('LOREM');
 
@@ -193,7 +193,7 @@ class EnumTest extends TestCase
         TestEnum::ensureKeyExists('__NONEXISTENT_KEY__');
     }
 
-    function testEnsureValueExists()
+    function testShouldEnsureValueExists()
     {
         TestEnum::ensureValueExists('foo');
 
