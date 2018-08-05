@@ -287,13 +287,13 @@ yield an instance with value of the given key.
    <?php
 
    /**
-    * @method static DayOfTheWeek MONDAY()
-    * @method static DayOfTheWeek TUESDAY()
-    * @method static DayOfTheWeek WEDNESDAY()
-    * @method static DayOfTheWeek THURSDAY()
-    * @method static DayOfTheWeek FRIDAY()
-    * @method static DayOfTheWeek SATURDAY()
-    * @method static DayOfTheWeek SUNDAY()
+    * @method static self MONDAY()
+    * @method static self TUESDAY()
+    * @method static self WEDNESDAY()
+    * @method static self THURSDAY()
+    * @method static self FRIDAY()
+    * @method static self SATURDAY()
+    * @method static self SUNDAY()
     */
    class DayOfTheWeek extends Enum
    {
