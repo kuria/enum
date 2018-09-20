@@ -1,6 +1,13 @@
 Changelog
 #########
 
+2.0.1
+*****
+
+- fixed PHP version requirement to PHP 7.1+
+- relaxed PHPDoc annotations of value-related ``Enum`` methods
+
+
 2.0.0
 *****
 

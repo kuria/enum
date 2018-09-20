@@ -2,19 +2,18 @@
 
 namespace Kuria\Enum;
 
+use Kuria\DevMeta\Test;
 use Kuria\Enum\Exception\DuplicateValueException;
 use Kuria\Enum\Exception\InvalidKeyException;
 use Kuria\Enum\Exception\InvalidValueException;
 use Kuria\Enum\TestSubject\DuplicateCoercedIntEnum;
 use Kuria\Enum\TestSubject\DuplicateCoercedNullEnum;
-use Kuria\Enum\TestSubject\DuplicateCoercedValuesEnum;
 use Kuria\Enum\TestSubject\DuplicateValuesEnum;
 use Kuria\Enum\TestSubject\IntNullEnum;
 use Kuria\Enum\TestSubject\StringEnum;
 use Kuria\Enum\TestSubject\TestEnum;
-use PHPUnit\Framework\TestCase;
 
-class EnumTest extends TestCase
+class EnumTest extends Test
 {
     /**
      * @dataProvider provideKeyValue

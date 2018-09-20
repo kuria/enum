@@ -62,15 +62,13 @@ abstract class Enum implements EnumInterface
     /** @var string */
     private $key;
 
-    /** @var string|int|null */
+    /** @var mixed */
     private $value;
 
     /**
      * Internal constructor
      *
      * The key and value are assumed to be valid.
-     *
-     * @param string|int|null $value
      */
     protected function __construct(string $key, $value)
     {
@@ -128,7 +126,6 @@ abstract class Enum implements EnumInterface
     /**
      * Get instance for the given value
      *
-     * @param string|int|null $value
      * @return static
      */
     static function fromValue($value)
@@ -148,8 +145,6 @@ abstract class Enum implements EnumInterface
 
     /**
      * Check if the given value exists in this enum
-     *
-     * @param string|int|null $value
      */
     static function hasValue($value): bool
     {
@@ -160,7 +155,6 @@ abstract class Enum implements EnumInterface
 
     /**
      * @throws InvalidKeyException
-     * @return string|int|null
      */
     static function findValueByKey(string $key)
     {
@@ -170,7 +164,6 @@ abstract class Enum implements EnumInterface
     }
 
     /**
-     * @param string|int|null $value
      * @throws InvalidValueException
      */
     static function findKeyByValue($value): string
@@ -190,9 +183,6 @@ abstract class Enum implements EnumInterface
         return array_keys(self::$keyToValueMap[static::class]);
     }
 
-    /**
-     * @return string[]|int[]|null[]
-     */
     static function getValues(): array
     {
         self::ensureKeyToValueMapLoaded();
@@ -233,9 +223,6 @@ abstract class Enum implements EnumInterface
         return $this->key;
     }
 
-    /**
-     * @return string|int|null
-     */
     function getValue()
     {
         return $this->value;
@@ -246,9 +233,6 @@ abstract class Enum implements EnumInterface
         return $this->key === $key;
     }
 
-    /**
-     * @param string|int|null $value
-     */
     function equals($value): bool
     {
         self::ensureValueToKeyMapLoaded();
@@ -272,7 +256,6 @@ abstract class Enum implements EnumInterface
     }
 
     /**
-     * @param string|int|null $value
      * @throws InvalidValueException if the value does not exist
      */
     static function ensureValueExists($value)
@@ -372,9 +355,6 @@ abstract class Enum implements EnumInterface
         return $keyToValueMap;
     }
 
-    /**
-     * @param string|int|null $value
-     */
     private static function dumpValue($value): string
     {
         if (is_string($value)) {
