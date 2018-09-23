@@ -205,7 +205,7 @@ class EnumTest extends Test
         TestEnum::ensureValueExists('__NONEXISTENT_VALUE__');
     }
 
-    function provideKeyValue(): array
+    function provideKeyValue()
     {
         return [
             ['LOREM', 'foo'],
@@ -214,7 +214,7 @@ class EnumTest extends Test
         ];
     }
 
-    function provideCoercibleValues(): array
+    function provideCoercibleValues()
     {
         return [
             // enum class, actual value, coercible value
@@ -225,7 +225,7 @@ class EnumTest extends Test
         ];
     }
 
-    function provideNoncoercibleValues(): array
+    function provideNoncoercibleValues()
     {
         return [
             // enum class, actual value, noncoercible value
