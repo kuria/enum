@@ -1,6 +1,17 @@
 Changelog
 #########
 
+3.0.0
+*****
+
+- enum instances can no longer be cloned
+- ``Enum::determineKeyToValueMap()`` is now protected again so it can be overriden
+- ``Enum::findValueByKey()`` and ``Enum::findKeyByValue()`` return ``NULL`` on failure
+  instead of throwing exceptions
+- added ``Enum::getValueByKey()`` and ``Enum::getKeyByValue()`` which throw exceptions
+  on invalid key/value
+
+
 2.0.1
 *****
 

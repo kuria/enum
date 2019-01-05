@@ -44,14 +44,23 @@ class EnumTest extends Test
         $this->assertFalse(TestEnum::hasKey('__NONEXISTENT_KEY__'));
         $this->assertTrue(TestEnum::hasValue($value));
         $this->assertFalse(TestEnum::hasValue('__NONEXISTENT_VALUE__'));
+        $this->assertSame($value, TestEnum::getValueByKey($key));
+        $this->assertSame($key, TestEnum::getKeyByValue($value));
         $this->assertSame($value, TestEnum::findValueByKey($key));
         $this->assertSame($key, TestEnum::findKeyByValue($value));
+        $this->assertNull(TestEnum::findValueByKey('__NONEXISTENT_KEY__'));
+        $this->assertNull(TestEnum::findKeyByValue('__NONEXISTENT_VALUE__'));
         $this->assertSame(['LOREM', 'IPSUM', 'DOLOR'], TestEnum::getKeys());
         $this->assertSame(['foo', 123, null], TestEnum::getValues());
         $this->assertSame(['LOREM' => true, 'IPSUM' => true, 'DOLOR' => true], TestEnum::getKeyMap());
         $this->assertSame(['LOREM' => 'foo', 'IPSUM' => 123, 'DOLOR' => null], TestEnum::getKeyToValueMap());
         $this->assertSame(['foo' => 'LOREM', 123 => 'IPSUM', null => 'DOLOR'], TestEnum::getValueToKeyMap());
         $this->assertSame(3, TestEnum::count());
+    }
+
+    function testShouldNotBeCloneaeble()
+    {
+        $this->assertFalse((new \ReflectionClass(TestEnum::class))->isCloneable());
     }
 
     function testShouldThrowExceptionWhenCreatingFromInvalidKey()
@@ -83,6 +92,28 @@ class EnumTest extends Test
 
         /** @noinspection PhpUndefinedMethodInspection */
         TestEnum::_UNKNOWN_KEY_();
+    }
+
+    function testShouldThrowExceptionWhenGettingValueForInvalidKey()
+    {
+        $this->expectException(InvalidKeyException::class);
+        $this->expectExceptionMessage(
+            'The key "__NONEXISTENT_KEY__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
+            . ', known keys: LOREM, IPSUM, DOLOR'
+        );
+
+        TestEnum::getValueByKey('__NONEXISTENT_KEY__');
+    }
+
+    function testShouldThrowExceptionWhenGettingKeyForInvalidValue()
+    {
+        $this->expectException(InvalidValueException::class);
+        $this->expectExceptionMessage(
+            'The value "__NONEXISTENT_VALUE__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
+            . ', known values: "foo", 123, NULL'
+        );
+
+        TestEnum::getKeyByValue('__NONEXISTENT_VALUE__');
     }
 
     function testShouldThrowExceptionOnDuplicateValues()
@@ -157,7 +188,7 @@ class EnumTest extends Test
         /** @var Enum $enumClass */
         $this->assertTrue($enumClass::hasValue($actualValue));
         $this->assertTrue($enumClass::hasValue($coercibleValue));
-        $this->assertSame($actualValue, $enumClass::findValueByKey($enumClass::findKeyByValue($coercibleValue)));
+        $this->assertSame($actualValue, $enumClass::getValueByKey($enumClass::getKeyByValue($coercibleValue)));
     }
 
     /**
@@ -176,7 +207,7 @@ class EnumTest extends Test
 
         $this->expectException(InvalidValueException::class);
 
-        TestEnum::findKeyByValue($noncoercibleValue);
+        TestEnum::getKeyByValue($noncoercibleValue);
     }
 
     function testShouldEnsureKeyExists()

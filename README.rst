@@ -56,6 +56,29 @@ Defining an enum class
    Private and protected constants are ignored.
 
 
+Custom key-value source
+-----------------------
+
+To define key-value pairs using some other source than class constants, override the static
+``determineKeyToValueMap()`` method:
+
+.. code:: php
+
+   <?php
+
+   class Example extends Enum
+   {
+      protected static function determineKeyToValueMap(): array
+      {
+           return [
+               'FOO' => 'bar',
+               'BAZ' => 'qux',
+               'QUUX' => 'quuz',
+           ];
+      }
+   }
+
+
 Supported value types
 =====================
 
@@ -117,8 +140,8 @@ Keys and values can be looked up using their counterpart:
    <?php
 
    var_dump(
-       DayOfTheWeek::findValueByKey('FRIDAY'),
-       DayOfTheWeek::findKeyByValue(4)
+       DayOfTheWeek::getValueByKey('FRIDAY'),
+       DayOfTheWeek::getKeyByValue(4)
    );
 
 Output:
@@ -127,6 +150,13 @@ Output:
 
   int(4)
   string(6) "FRIDAY"
+
+.. NOTE::
+
+   If the key or value doesn't exist, an exception will be thrown. See `Error handling`_.
+
+   To get ``NULL`` instead of an exception, use the ``findValueByKey()`` or ``findKeyByValue()``
+   method instead.
 
 
 Getting key/value lists and maps
@@ -217,13 +247,13 @@ Output:
 Creating enum instances
 =======================
 
-.. NOTE::
+Instances created by ``fromValue()``, ``fromKey()`` and the magic factory methods
+are cached internally and reused.
 
-   Instances created by ``fromValue()``, ``fromKey()`` and the static magic factory
-   methods are cached internally and reused.
+Multiple calls to the factory methods with the same value or key will yield
+the same instance.
 
-   Multiple calls to the factory methods with the same value or key will yield
-   the same instance.
+Enum instances cannot be cloned.
 
 
 Using a value
@@ -407,7 +437,7 @@ Output:
 Error handling
 ==============
 
-All errors are handled by throwing an exception.
+Most error states are handled by throwing an exception.
 
 All exceptions thrown by the ``Enum`` class implement ``Kuria\Enum\Exception\ExceptionInterface``.
 
@@ -423,7 +453,7 @@ Invalid value
 
    // or
 
-   DayOfTheWeek::findKeyByValue(123456);
+   DayOfTheWeek::getKeyByValue(123456);
 
 Result:
 
@@ -443,7 +473,7 @@ Invalid key
 
     // or
 
-    DayOfTheWeek::findValueByKey('NONEXISTENT');
+    DayOfTheWeek::getValueByKey('NONEXISTENT');
 
 Result:
 
@@ -467,7 +497,7 @@ Duplicate values
        const BAR = 'foo';
    }
 
-   EnumWithDuplicateValues::findKeyByValue('foo');
+   EnumWithDuplicateValues::getKeyByValue('foo');
 
 Result:
 
@@ -500,7 +530,7 @@ the following values are equal:
 
 .. NOTE::
 
-   The public API, e.g. ``Enum::findValueByKey()`` and ``$enum->value()``,
+   The public API, e.g. ``Enum::getValueByKey()`` and ``$enum->value()``,
    always returns the value as defined by the enum class.
 
 .. NOTE::

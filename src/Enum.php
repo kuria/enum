@@ -76,6 +76,15 @@ abstract class Enum implements EnumInterface
         $this->value = $value;
     }
 
+    /**
+     * Enum instance must not be cloned to ensure a single instance per key-value pair
+     *
+     * @codeCoverageIgnore
+     */
+    private function __clone()
+    {
+    }
+
     function __toString(): string
     {
         return (string) $this->value;
@@ -112,7 +121,7 @@ abstract class Enum implements EnumInterface
     /**
      * Get instance for the given key
      *
-     * @throws InvalidKeyException
+     * @throws InvalidKeyException if there is no such key
      * @return static
      */
     static function fromKey(string $key)
@@ -126,11 +135,12 @@ abstract class Enum implements EnumInterface
     /**
      * Get instance for the given value
      *
+     * @throws InvalidValueException if there is no such value
      * @return static
      */
     static function fromValue($value)
     {
-        $key = self::findKeyByValue($value);
+        $key = self::getKeyByValue($value);
 
         return self::$instanceCache[static::class][$key]
             ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
@@ -154,9 +164,9 @@ abstract class Enum implements EnumInterface
     }
 
     /**
-     * @throws InvalidKeyException
+     * @throws InvalidKeyException if there is no such key
      */
-    static function findValueByKey(string $key)
+    static function getValueByKey(string $key)
     {
         self::ensureKeyExists($key);
 
@@ -164,13 +174,33 @@ abstract class Enum implements EnumInterface
     }
 
     /**
-     * @throws InvalidValueException
+     * Attempt to find a value by its key. Returns NULL on failure.
      */
-    static function findKeyByValue($value): string
+    static function findValueByKey(string $key)
+    {
+        return self::hasKey($key)
+            ? self::$keyToValueMap[static::class][$key]
+            : null;
+    }
+
+    /**
+     * @throws InvalidValueException if there is no such value
+     */
+    static function getKeyByValue($value): string
     {
         self::ensureValueExists($value);
 
         return self::$valueToKeyMap[static::class][$value];
+    }
+
+    /**
+     * Attempt to find a key by its value. Returns NULL on failure.
+     */
+    static function findKeyByValue($value): ?string
+    {
+        return self::hasValue($value)
+            ? self::$valueToKeyMap[static::class][$value]
+            : null;
     }
 
     /**
@@ -241,7 +271,7 @@ abstract class Enum implements EnumInterface
     }
 
     /**
-     * @throws InvalidKeyException if the key does not exist
+     * @throws InvalidKeyException if there is no such key
      */
     static function ensureKeyExists(string $key)
     {
@@ -256,7 +286,7 @@ abstract class Enum implements EnumInterface
     }
 
     /**
-     * @throws InvalidValueException if the value does not exist
+     * @throws InvalidValueException if there is no such value
      */
     static function ensureValueExists($value)
     {
@@ -297,7 +327,7 @@ abstract class Enum implements EnumInterface
 
     private static function loadKeyToValueMap()
     {
-        self::$keyToValueMap[static::class] = self::determineKeyToValueMap();
+        self::$keyToValueMap[static::class] = static::determineKeyToValueMap();
     }
 
     private static function loadValueToKeyMap()
@@ -341,9 +371,9 @@ abstract class Enum implements EnumInterface
      *
      * @return array
      */
-    private static function determineKeyToValueMap(): array
+    protected static function determineKeyToValueMap(): array
     {
-        // use all public constants of current class
+        // default behavior is to use all public constants of the current class
         $keyToValueMap = [];
 
         foreach ((new \ReflectionClass(static::class))->getReflectionConstants() as $constant) {
