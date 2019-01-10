@@ -124,8 +124,8 @@ Make sure a key or a value exists, otherwise throw an exception:
 
    <?php
 
-   DayOfTheWeek::ensureKeyExists('MONDAY');
-   DayOfTheWeek::ensureValueExists(0);
+   DayOfTheWeek::ensureKey('MONDAY');
+   DayOfTheWeek::ensureValue(0);
 
 Also see `error handling`_.
 
@@ -140,8 +140,8 @@ Keys and values can be looked up using their counterpart:
    <?php
 
    var_dump(
-       DayOfTheWeek::getValueByKey('FRIDAY'),
-       DayOfTheWeek::getKeyByValue(4)
+       DayOfTheWeek::getValue('FRIDAY'),
+       DayOfTheWeek::getKey(4)
    );
 
 Output:
@@ -155,7 +155,7 @@ Output:
 
    If the key or value doesn't exist, an exception will be thrown. See `Error handling`_.
 
-   To get ``NULL`` instead of an exception, use the ``findValueByKey()`` or ``findKeyByValue()``
+   To get ``NULL`` instead of an exception, use the ``findValue()`` or ``findKey()``
    method instead.
 
 
@@ -168,15 +168,15 @@ Getting key/value lists and maps
 
    echo 'DayOfTheWeek::getKeys(): '; print_r(DayOfTheWeek::getKeys());
    echo 'DayOfTheWeek::getValues(): '; print_r(DayOfTheWeek::getValues());
+   echo 'DayOfTheWeek::getMap(): '; print_r(DayOfTheWeek::getMap());
    echo 'DayOfTheWeek::getKeyMap(): '; print_r(DayOfTheWeek::getKeyMap());
-   echo 'DayOfTheWeek::getKeyToValueMap(): '; print_r(DayOfTheWeek::getKeyToValueMap());
-   echo 'DayOfTheWeek::getValueToKeyMap(): '; print_r(DayOfTheWeek::getValueToKeyMap());
+   echo 'DayOfTheWeek::getValueMap(): '; print_r(DayOfTheWeek::getValueMap());
 
 Output:
 
 ::
 
-  DayOfTheWeek::keys(): Array
+  DayOfTheWeek::getKeys(): Array
   (
       [0] => MONDAY
       [1] => TUESDAY
@@ -186,7 +186,7 @@ Output:
       [5] => SATURDAY
       [6] => SUNDAY
   )
-  DayOfTheWeek::values(): Array
+  DayOfTheWeek::getValues(): Array
   (
       [0] => 0
       [1] => 1
@@ -196,17 +196,7 @@ Output:
       [5] => 5
       [6] => 6
   )
-  DayOfTheWeek::keyMap(): Array
-  (
-      [MONDAY] => 1
-      [TUESDAY] => 1
-      [WEDNESDAY] => 1
-      [THURSDAY] => 1
-      [FRIDAY] => 1
-      [SATURDAY] => 1
-      [SUNDAY] => 1
-  )
-  DayOfTheWeek::keyToValueMap(): Array
+  DayOfTheWeek::getMap(): Array
   (
       [MONDAY] => 0
       [TUESDAY] => 1
@@ -216,7 +206,17 @@ Output:
       [SATURDAY] => 5
       [SUNDAY] => 6
   )
-  DayOfTheWeek::valueToKeyMap(): Array
+  DayOfTheWeek::getKeyMap(): Array
+  (
+      [MONDAY] => 1
+      [TUESDAY] => 1
+      [WEDNESDAY] => 1
+      [THURSDAY] => 1
+      [FRIDAY] => 1
+      [SATURDAY] => 1
+      [SUNDAY] => 1
+  )
+  DayOfTheWeek::getValueMap(): Array
   (
       [0] => MONDAY
       [1] => TUESDAY
@@ -226,6 +226,33 @@ Output:
       [5] => SATURDAY
       [6] => SUNDAY
   )
+
+
+Getting pairs
+-------------
+
+A pair is an array with a single key and the corresponding value. They can be retrieved using either
+the key or the value:
+
+.. code:: php
+
+   <?php
+
+   var_dump(DayOfTheWeek::getPair(DayOfTheWeek::MONDAY));
+   var_dump(DayOfTheWeek::getPairByKey('FRIDAY'));
+
+Output:
+
+::
+
+  array(1) {
+    ["MONDAY"]=>
+    int(0)
+  }
+  array(1) {
+    ["FRIDAY"]=>
+    int(4)
+  }
 
 
 Counting members
@@ -317,13 +344,13 @@ yield an instance with value of the given key.
    <?php
 
    /**
-    * @method static self MONDAY()
-    * @method static self TUESDAY()
-    * @method static self WEDNESDAY()
-    * @method static self THURSDAY()
-    * @method static self FRIDAY()
-    * @method static self SATURDAY()
-    * @method static self SUNDAY()
+    * @method static static MONDAY()
+    * @method static static TUESDAY()
+    * @method static static WEDNESDAY()
+    * @method static static THURSDAY()
+    * @method static static FRIDAY()
+    * @method static static SATURDAY()
+    * @method static static SUNDAY()
     */
    class DayOfTheWeek extends Enum
    {
@@ -376,8 +403,8 @@ Getting the key and value
    $day = DayOfTheWeek::fromValue(1);
 
    var_dump(
-       $day->getKey(),
-       $day->getValue()
+       $day->key(),
+       $day->value()
    );
 
 Output:
@@ -386,6 +413,27 @@ Output:
 
   string(7) "TUESDAY"
   int(1)
+
+
+Getting the pair
+----------------
+
+.. code:: php
+
+   <?php
+
+   $day = DayOfTheWeek::fromValue(2);
+
+   var_dump($day->pair());
+
+Output:
+
+::
+
+  array(1) {
+    ["WEDNESDAY"]=>
+    int(2)
+  }
 
 
 Comparing the key and value
@@ -453,7 +501,7 @@ Invalid value
 
    // or
 
-   DayOfTheWeek::getKeyByValue(123456);
+   DayOfTheWeek::getKey(123456);
 
 Result:
 
@@ -473,7 +521,7 @@ Invalid key
 
     // or
 
-    DayOfTheWeek::getValueByKey('NONEXISTENT');
+    DayOfTheWeek::getValue('NONEXISTENT');
 
 Result:
 
@@ -497,7 +545,7 @@ Duplicate values
        const BAR = 'foo';
    }
 
-   EnumWithDuplicateValues::getKeyByValue('foo');
+   EnumWithDuplicateValues::getKey('foo');
 
 Result:
 
@@ -530,7 +578,7 @@ the following values are equal:
 
 .. NOTE::
 
-   The public API, e.g. ``Enum::getValueByKey()`` and ``$enum->value()``,
+   The public API, e.g. ``Enum::getValue()`` and ``$enum->value()``,
    always returns the value as defined by the enum class.
 
 .. NOTE::
@@ -573,10 +621,10 @@ Examples
 
    // value retrieval
    var_dump(
-       (IntAndNullEnum::fromValue('123'))->getValue(),
-       (IntAndNullEnum::fromValue(''))->getValue(),
-       (StringEnum::fromValue(123))->getValue(),
-       (StringEnum::fromValue(null))->getValue()
+       (IntAndNullEnum::fromValue('123'))->value(),
+       (IntAndNullEnum::fromValue(''))->value(),
+       (StringEnum::fromValue(123))->value(),
+       (StringEnum::fromValue(null))->value()
    );
 
 Output for value checks:

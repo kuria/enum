@@ -18,7 +18,7 @@ use Kuria\Enum\Exception\InvalidValueException;
  * - values must be unique when used as an array key
  * - instances are cached and should be immutable
  */
-abstract class Enum implements EnumInterface
+abstract class Enum
 {
     /**
      * Key map (lazy)
@@ -126,7 +126,7 @@ abstract class Enum implements EnumInterface
      */
     static function fromKey(string $key)
     {
-        self::ensureKeyExists($key);
+        self::ensureKey($key);
 
         return self::$instanceCache[static::class][$key]
             ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
@@ -140,12 +140,15 @@ abstract class Enum implements EnumInterface
      */
     static function fromValue($value)
     {
-        $key = self::getKeyByValue($value);
+        $key = self::getKey($value);
 
         return self::$instanceCache[static::class][$key]
             ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
     }
 
+    /**
+     * Check if the given key exists in this enum
+     */
     static function hasKey(string $key): bool
     {
         self::ensureKeyMapLoaded();
@@ -166,9 +169,9 @@ abstract class Enum implements EnumInterface
     /**
      * @throws InvalidKeyException if there is no such key
      */
-    static function getValueByKey(string $key)
+    static function getValue(string $key)
     {
-        self::ensureKeyExists($key);
+        self::ensureKey($key);
 
         return self::$keyToValueMap[static::class][$key];
     }
@@ -176,7 +179,7 @@ abstract class Enum implements EnumInterface
     /**
      * Attempt to find a value by its key. Returns NULL on failure.
      */
-    static function findValueByKey(string $key)
+    static function findValue(string $key)
     {
         return self::hasKey($key)
             ? self::$keyToValueMap[static::class][$key]
@@ -186,9 +189,9 @@ abstract class Enum implements EnumInterface
     /**
      * @throws InvalidValueException if there is no such value
      */
-    static function getKeyByValue($value): string
+    static function getKey($value): string
     {
-        self::ensureValueExists($value);
+        self::ensureValue($value);
 
         return self::$valueToKeyMap[static::class][$value];
     }
@@ -196,7 +199,7 @@ abstract class Enum implements EnumInterface
     /**
      * Attempt to find a key by its value. Returns NULL on failure.
      */
-    static function findKeyByValue($value): ?string
+    static function findKey($value): ?string
     {
         return self::hasValue($value)
             ? self::$valueToKeyMap[static::class][$value]
@@ -220,6 +223,19 @@ abstract class Enum implements EnumInterface
         return array_values(self::$keyToValueMap[static::class]);
     }
 
+    /**
+     * Get a key => value map
+     */
+    static function getMap(): array
+    {
+        self::ensureKeyToValueMapLoaded();
+
+        return self::$keyToValueMap[static::class];
+    }
+
+    /**
+     * Get a key => true map
+     */
     static function getKeyMap(): array
     {
         self::ensureKeyMapLoaded();
@@ -227,18 +243,34 @@ abstract class Enum implements EnumInterface
         return self::$keyMap[static::class];
     }
 
-    static function getKeyToValueMap(): array
-    {
-        self::ensureKeyToValueMapLoaded();
-
-        return self::$keyToValueMap[static::class];
-    }
-
-    static function getValueToKeyMap(): array
+    /**
+     * Get a value => key map
+     */
+    static function getValueMap(): array
     {
         self::ensureValueToKeyMapLoaded();
 
         return self::$valueToKeyMap[static::class];
+    }
+
+    /**
+     * @throws InvalidValueException if there is no such value
+     */
+    static function getPair($value): array
+    {
+        $key = self::getKey($value);
+
+        return [$key => self::$keyToValueMap[static::class][$key]];
+    }
+
+    /**
+     * @throws InvalidKeyException if there is no such key
+     */
+    static function getPairByKey(string $key): array
+    {
+        self::ensureKey($key);
+
+        return [$key => self::$keyToValueMap[static::class][$key]];
     }
 
     static function count(): int
@@ -248,14 +280,19 @@ abstract class Enum implements EnumInterface
         return count(self::$keyToValueMap[static::class]);
     }
 
-    function getKey(): string
+    function key(): string
     {
         return $this->key;
     }
 
-    function getValue()
+    function value()
     {
         return $this->value;
+    }
+
+    function pair(): array
+    {
+        return [$this->key => $this->value];
     }
 
     function is(string $key): bool
@@ -271,9 +308,11 @@ abstract class Enum implements EnumInterface
     }
 
     /**
+     * Ensure that a key exists
+     *
      * @throws InvalidKeyException if there is no such key
      */
-    static function ensureKeyExists(string $key)
+    static function ensureKey(string $key)
     {
         if (!self::hasKey($key)) {
             throw new InvalidKeyException(sprintf(
@@ -286,9 +325,11 @@ abstract class Enum implements EnumInterface
     }
 
     /**
+     * Ensure that a value exists
+     *
      * @throws InvalidValueException if there is no such value
      */
-    static function ensureValueExists($value)
+    static function ensureValue($value)
     {
         if (!self::hasValue($value)) {
             throw new InvalidValueException(sprintf(

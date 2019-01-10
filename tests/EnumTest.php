@@ -18,43 +18,49 @@ class EnumTest extends Test
     /**
      * @dataProvider provideKeyValue
      */
-    function testShouldPerformStaticOperations(string $key, $value)
+    function testShouldPerformStaticKeyValueOperations(string $key, $value)
     {
         /** @var TestEnum $enum */
 
         // new instance from key
         $enum = TestEnum::fromKey($key);
         $this->assertInstanceOf(TestEnum::class, $enum);
-        $this->assertSame($key, $enum->getKey());
-        $this->assertSame($value, $enum->getValue());
+        $this->assertSame($key, $enum->key());
+        $this->assertSame($value, $enum->value());
 
         // new instance from value
         $enum = TestEnum::fromValue($value);
         $this->assertInstanceOf(TestEnum::class, $enum);
-        $this->assertSame($key, $enum->getKey());
-        $this->assertSame($value, $enum->getValue());
+        $this->assertSame($key, $enum->key());
+        $this->assertSame($value, $enum->value());
 
         // new instance via magic factory method
         $enum = TestEnum::$key();
         $this->assertInstanceOf(TestEnum::class, $enum);
-        $this->assertSame($key, $enum->getKey());
-        $this->assertSame($value, $enum->getValue());
+        $this->assertSame($key, $enum->key());
+        $this->assertSame($value, $enum->value());
 
         $this->assertTrue(TestEnum::hasKey($key));
-        $this->assertFalse(TestEnum::hasKey('__NONEXISTENT_KEY__'));
         $this->assertTrue(TestEnum::hasValue($value));
+        $this->assertSame($value, TestEnum::getValue($key));
+        $this->assertSame($key, TestEnum::getKey($value));
+        $this->assertSame($value, TestEnum::findValue($key));
+        $this->assertSame($key, TestEnum::findKey($value));
+        $this->assertSame([$key => $value], TestEnum::getPair($value));
+        $this->assertSame([$key => $value], TestEnum::getPairByKey($key));
+    }
+
+    function testShouldPerformStaticOperations()
+    {
+        $this->assertFalse(TestEnum::hasKey('__NONEXISTENT_KEY__'));
         $this->assertFalse(TestEnum::hasValue('__NONEXISTENT_VALUE__'));
-        $this->assertSame($value, TestEnum::getValueByKey($key));
-        $this->assertSame($key, TestEnum::getKeyByValue($value));
-        $this->assertSame($value, TestEnum::findValueByKey($key));
-        $this->assertSame($key, TestEnum::findKeyByValue($value));
-        $this->assertNull(TestEnum::findValueByKey('__NONEXISTENT_KEY__'));
-        $this->assertNull(TestEnum::findKeyByValue('__NONEXISTENT_VALUE__'));
+        $this->assertNull(TestEnum::findValue('__NONEXISTENT_KEY__'));
+        $this->assertNull(TestEnum::findKey('__NONEXISTENT_VALUE__'));
         $this->assertSame(['LOREM', 'IPSUM', 'DOLOR'], TestEnum::getKeys());
         $this->assertSame(['foo', 123, null], TestEnum::getValues());
         $this->assertSame(['LOREM' => true, 'IPSUM' => true, 'DOLOR' => true], TestEnum::getKeyMap());
-        $this->assertSame(['LOREM' => 'foo', 'IPSUM' => 123, 'DOLOR' => null], TestEnum::getKeyToValueMap());
-        $this->assertSame(['foo' => 'LOREM', 123 => 'IPSUM', null => 'DOLOR'], TestEnum::getValueToKeyMap());
+        $this->assertSame(['LOREM' => 'foo', 'IPSUM' => 123, 'DOLOR' => null], TestEnum::getMap());
+        $this->assertSame(['foo' => 'LOREM', 123 => 'IPSUM', null => 'DOLOR'], TestEnum::getValueMap());
         $this->assertSame(3, TestEnum::count());
     }
 
@@ -102,7 +108,7 @@ class EnumTest extends Test
             . ', known keys: LOREM, IPSUM, DOLOR'
         );
 
-        TestEnum::getValueByKey('__NONEXISTENT_KEY__');
+        TestEnum::getValue('__NONEXISTENT_KEY__');
     }
 
     function testShouldThrowExceptionWhenGettingKeyForInvalidValue()
@@ -113,7 +119,7 @@ class EnumTest extends Test
             . ', known values: "foo", 123, NULL'
         );
 
-        TestEnum::getKeyByValue('__NONEXISTENT_VALUE__');
+        TestEnum::getKey('__NONEXISTENT_VALUE__');
     }
 
     function testShouldThrowExceptionOnDuplicateValues()
@@ -165,8 +171,9 @@ class EnumTest extends Test
     {
         $enum = TestEnum::fromValue($value);
 
-        $this->assertSame($key, $enum->getKey());
-        $this->assertSame($value, $enum->getValue());
+        $this->assertSame($key, $enum->key());
+        $this->assertSame($value, $enum->value());
+        $this->assertSame([$key => $value], $enum->pair());
         $this->assertTrue($enum->is($key));
         $this->assertFalse($enum->is('__NOT_A_CURRENT_KEY__'));
         $this->assertTrue($enum->equals($value));
@@ -183,12 +190,12 @@ class EnumTest extends Test
         /** @var Enum $enumClass */
         $enum = $enumClass::fromValue($actualValue);
         $this->assertTrue($enum->equals($coercibleValue));
-        $this->assertSame($actualValue, $enum->getValue()); // constructor should normalize the value
+        $this->assertSame($actualValue, $enum->value()); // constructor should normalize the value
 
         /** @var Enum $enumClass */
         $this->assertTrue($enumClass::hasValue($actualValue));
         $this->assertTrue($enumClass::hasValue($coercibleValue));
-        $this->assertSame($actualValue, $enumClass::getValueByKey($enumClass::getKeyByValue($coercibleValue)));
+        $this->assertSame($actualValue, $enumClass::getValue($enumClass::getKey($coercibleValue)));
     }
 
     /**
@@ -199,7 +206,7 @@ class EnumTest extends Test
         /** @var Enum $enumClass */
         $enum = $enumClass::fromValue($actualValue);
         $this->assertFalse($enum->equals($noncoercibleValue));
-        $this->assertNotSame($noncoercibleValue, $enum->getValue());
+        $this->assertNotSame($noncoercibleValue, $enum->value());
 
         /** @var Enum $enumClass */
         $this->assertTrue($enumClass::hasValue($actualValue));
@@ -207,12 +214,12 @@ class EnumTest extends Test
 
         $this->expectException(InvalidValueException::class);
 
-        TestEnum::getKeyByValue($noncoercibleValue);
+        TestEnum::getKey($noncoercibleValue);
     }
 
     function testShouldEnsureKeyExists()
     {
-        TestEnum::ensureKeyExists('LOREM');
+        TestEnum::ensureKey('LOREM');
 
         $this->expectException(InvalidKeyException::class);
         $this->expectExceptionMessage(
@@ -220,12 +227,12 @@ class EnumTest extends Test
                 . ', known keys: LOREM, IPSUM, DOLOR'
         );
 
-        TestEnum::ensureKeyExists('__NONEXISTENT_KEY__');
+        TestEnum::ensureKey('__NONEXISTENT_KEY__');
     }
 
     function testShouldEnsureValueExists()
     {
-        TestEnum::ensureValueExists('foo');
+        TestEnum::ensureValue('foo');
 
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage(
@@ -233,7 +240,7 @@ class EnumTest extends Test
                 . ', known values: "foo", 123, NULL'
         );
 
-        TestEnum::ensureValueExists('__NONEXISTENT_VALUE__');
+        TestEnum::ensureValue('__NONEXISTENT_VALUE__');
     }
 
     function provideKeyValue()

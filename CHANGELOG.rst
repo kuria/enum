@@ -1,6 +1,14 @@
 Changelog
 #########
 
+4.0.0
+*****
+
+- simplified many method names
+- added ``Enum::pair()``, ``Enum::getPair()``, ``Enum::getPairByKey()``
+- removed ``EnumInterface``
+
+
 3.0.0
 *****
 
