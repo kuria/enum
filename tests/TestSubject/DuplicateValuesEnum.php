@@ -7,7 +7,7 @@ use Kuria\Enum\Enum;
 /**
  * @internal
  */
-class DuplicateValuesEnum extends Enum
+abstract class DuplicateValuesEnum extends Enum
 {
     const VALUE = 'value';
     const DUPLICATE_VALUE = 'value';

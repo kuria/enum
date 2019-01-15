@@ -20,26 +20,6 @@ class EnumTest extends Test
      */
     function testShouldPerformStaticKeyValueOperations(string $key, $value)
     {
-        /** @var TestEnum $enum */
-
-        // new instance from key
-        $enum = TestEnum::fromKey($key);
-        $this->assertInstanceOf(TestEnum::class, $enum);
-        $this->assertSame($key, $enum->key());
-        $this->assertSame($value, $enum->value());
-
-        // new instance from value
-        $enum = TestEnum::fromValue($value);
-        $this->assertInstanceOf(TestEnum::class, $enum);
-        $this->assertSame($key, $enum->key());
-        $this->assertSame($value, $enum->value());
-
-        // new instance via magic factory method
-        $enum = TestEnum::$key();
-        $this->assertInstanceOf(TestEnum::class, $enum);
-        $this->assertSame($key, $enum->key());
-        $this->assertSame($value, $enum->value());
-
         $this->assertTrue(TestEnum::hasKey($key));
         $this->assertTrue(TestEnum::hasValue($value));
         $this->assertSame($value, TestEnum::getValue($key));
@@ -62,42 +42,6 @@ class EnumTest extends Test
         $this->assertSame(['LOREM' => 'foo', 'IPSUM' => 123, 'DOLOR' => null], TestEnum::getMap());
         $this->assertSame(['foo' => 'LOREM', 123 => 'IPSUM', null => 'DOLOR'], TestEnum::getValueMap());
         $this->assertSame(3, TestEnum::count());
-    }
-
-    function testShouldNotBeCloneaeble()
-    {
-        $this->assertFalse((new \ReflectionClass(TestEnum::class))->isCloneable());
-    }
-
-    function testShouldThrowExceptionWhenCreatingFromInvalidKey()
-    {
-        $this->expectException(InvalidKeyException::class);
-        $this->expectExceptionMessage(
-            'The key "__NONEXISTENT_KEY__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
-                . ', known keys: LOREM, IPSUM, DOLOR'
-        );
-
-        TestEnum::fromKey('__NONEXISTENT_KEY__');
-    }
-
-    function testShouldThrowExceptionWhenCreatingFromInvalidValue()
-    {
-        $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage(
-            'The value "__NONEXISTENT_VALUE__" is not defined in enum class "Kuria\Enum\TestSubject\TestEnum"'
-                . ', known values: "foo", 123, NULL'
-        );
-
-        TestEnum::fromValue('__NONEXISTENT_VALUE__');
-    }
-
-    function testShouldThrowExceptionWhenCallingUnknownFactoryMethod()
-    {
-        $this->expectException(\BadMethodCallException::class);
-        $this->expectExceptionMessage('Call to undefined static method Kuria\Enum\TestSubject\TestEnum::_UNKNOWN_KEY_()');
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        TestEnum::_UNKNOWN_KEY_();
     }
 
     function testShouldThrowExceptionWhenGettingValueForInvalidKey()
@@ -129,7 +73,7 @@ class EnumTest extends Test
             '{^Duplicate value "value" for key "DUPLICATE_VALUE" in enum class ".+"\. Value "value" is already defined for key "VALUE"\.$}'
         );
 
-        DuplicateValuesEnum::fromValue('value');
+        DuplicateValuesEnum::getKey('value');
     }
 
     function testShouldThrowExceptionOnDuplicateValueBecauseNumericStringArrayKeyIsCoercedToInteger()
@@ -139,7 +83,7 @@ class EnumTest extends Test
             '{^Duplicate value "123" for key "DUPLICATE_VALUE" in enum class ".+"\. Value 123 is already defined for key "VALUE"\.$}'
         );
 
-        DuplicateCoercedIntEnum::fromValue(123);
+        DuplicateCoercedIntEnum::getKey(123);
     }
 
     function testShouldThrowExceptionOnDuplicateValueBecauseNullArrayKeyIsCoercedToEmptyString()
@@ -149,37 +93,7 @@ class EnumTest extends Test
             '{^Duplicate value "" for key "DUPLICATE_VALUE" in enum class ".+"\. Value NULL is already defined for key "VALUE"\.$}'
         );
 
-        DuplicateCoercedNullEnum::fromValue(null);
-    }
-
-    /**
-     * @dataProvider provideKeyValue
-     */
-    function testShouldCacheInstances(string $key, $value)
-    {
-        $instance = TestEnum::fromKey($key);
-
-        $this->assertSame($instance, TestEnum::fromKey($key));
-        $this->assertSame($instance, TestEnum::fromValue($value));
-        $this->assertSame($instance, TestEnum::$key());
-    }
-
-    /**
-     * @dataProvider provideKeyValue
-     */
-    function testShouldPerformObjectOperations(string $key, $value)
-    {
-        $enum = TestEnum::fromValue($value);
-
-        $this->assertSame($key, $enum->key());
-        $this->assertSame($value, $enum->value());
-        $this->assertSame([$key => $value], $enum->pair());
-        $this->assertTrue($enum->is($key));
-        $this->assertFalse($enum->is('__NOT_A_CURRENT_KEY__'));
-        $this->assertTrue($enum->equals($value));
-        $this->assertFalse($enum->equals('__NOT_A_CURRENT_VALUE__'));
-        $this->assertSame((string) $value, (string) $enum);
-        $this->assertSame(['key' => $key, 'value' => $value], $enum->__debugInfo());
+        DuplicateCoercedNullEnum::getKey(null);
     }
 
     /**
@@ -187,11 +101,6 @@ class EnumTest extends Test
      */
     function testShouldPerformValueTypeCoercion(string $enumClass, $actualValue, $coercibleValue)
     {
-        /** @var Enum $enumClass */
-        $enum = $enumClass::fromValue($actualValue);
-        $this->assertTrue($enum->equals($coercibleValue));
-        $this->assertSame($actualValue, $enum->value()); // constructor should normalize the value
-
         /** @var Enum $enumClass */
         $this->assertTrue($enumClass::hasValue($actualValue));
         $this->assertTrue($enumClass::hasValue($coercibleValue));
@@ -203,11 +112,6 @@ class EnumTest extends Test
      */
     function testShouldNotCoerceIncompatibleValueTypes(string $enumClass, $actualValue, $noncoercibleValue)
     {
-        /** @var Enum $enumClass */
-        $enum = $enumClass::fromValue($actualValue);
-        $this->assertFalse($enum->equals($noncoercibleValue));
-        $this->assertNotSame($noncoercibleValue, $enum->value());
-
         /** @var Enum $enumClass */
         $this->assertTrue($enumClass::hasValue($actualValue));
         $this->assertFalse($enumClass::hasValue($noncoercibleValue));

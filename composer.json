@@ -18,5 +18,12 @@
         "psr-4": {
             "Kuria\\Enum\\": "tests"
         }
+    },
+    "extra": {
+        "package-scripts-vars": {
+            "kuria/dev-meta": {
+                "src.phpstan.config": "phpstan-src.neon"
+            }
+        }
     }
 }

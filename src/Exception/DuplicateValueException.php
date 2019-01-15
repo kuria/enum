@@ -2,6 +2,6 @@
 
 namespace Kuria\Enum\Exception;
 
-class DuplicateValueException extends \OutOfBoundsException implements ExceptionInterface
+class DuplicateValueException extends \LogicException implements ExceptionInterface
 {
 }

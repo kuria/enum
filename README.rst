@@ -17,10 +17,11 @@ Features
 
 - immutability
 - ensured unique keys and values
-- simple to use (just extend the ``Enum`` class and define some class constants)
-- many methods related to keys, values and their enumeration, maps and checking
+- simple to use (just extend a class and define some class constants)
+- many methods related to keys
+- values and their enumeration, maps and checking
+- enum instances
 - detailed exception messages
-- designed with performance in mind
 
 
 Requirements
@@ -28,11 +29,20 @@ Requirements
 
 - PHP 7.1+
 
+
 Usage
 *****
 
+.. _Enum:
+
+``Enum``
+========
+
+The static ``Enum`` class provides access to the defined key-value pairs.
+
+
 Defining an enum class
-======================
+----------------------
 
 .. code:: php
 
@@ -40,7 +50,7 @@ Defining an enum class
 
    use Kuria\Enum\Enum;
 
-   class DayOfTheWeek extends Enum
+   abstract class DayOfTheWeek extends Enum
    {
        const MONDAY = 0;
        const TUESDAY = 1;
@@ -57,7 +67,7 @@ Defining an enum class
 
 
 Custom key-value source
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 To define key-value pairs using some other source than class constants, override the static
 ``determineKeyToValueMap()`` method:
@@ -66,7 +76,9 @@ To define key-value pairs using some other source than class constants, override
 
    <?php
 
-   class Example extends Enum
+   use Kuria\Enum\Enum;
+
+   abstract class Example extends Enum
    {
       protected static function determineKeyToValueMap(): array
       {
@@ -80,21 +92,21 @@ To define key-value pairs using some other source than class constants, override
 
 
 Supported value types
-=====================
+---------------------
 
 Only string, integer and null values are supported.
 
-Values must be unique when used as an array key. See `Duplicate values`_.
+Values must be unique when used as an array key. See `Value type coercion`_.
 
 Values are looked up and compared with the same type-coercion rules as
 PHP array keys. See `Value type coercion`_.
 
 
-Static method overview
-======================
+Method overview
+---------------
 
 Checking keys and values
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Verify the existence of a key or a value:
 
@@ -116,7 +128,7 @@ Output:
 
 
 Ensuring existence of keys and values
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure a key or a value exists, otherwise throw an exception:
 
@@ -127,11 +139,11 @@ Make sure a key or a value exists, otherwise throw an exception:
    DayOfTheWeek::ensureKey('MONDAY');
    DayOfTheWeek::ensureValue(0);
 
-Also see `error handling`_.
+See `Error handling`_.
 
 
 Getting keys for values or values for keys
-------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Keys and values can be looked up using their counterpart:
 
@@ -160,7 +172,7 @@ Output:
 
 
 Getting key/value lists and maps
----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: php
 
@@ -229,7 +241,7 @@ Output:
 
 
 Getting pairs
--------------
+^^^^^^^^^^^^^
 
 A pair is an array with a single key and the corresponding value. They can be retrieved using either
 the key or the value:
@@ -256,7 +268,7 @@ Output:
 
 
 Counting members
-----------------
+^^^^^^^^^^^^^^^^
 
 .. code:: php
 
@@ -271,185 +283,189 @@ Output:
   int(7)
 
 
-Creating enum instances
-=======================
+.. _EnumObject:
 
-Instances created by ``fromValue()``, ``fromKey()`` and the magic factory methods
-are cached internally and reused.
+``EnumObject``
+==============
 
-Multiple calls to the factory methods with the same value or key will yield
+The ``EnumObject`` class extends from Enum_ and adds factory methods to create instances.
+
+
+Defining an enum object class
+-----------------------------
+
+.. code:: php
+
+   <?php
+
+   use Kuria\Enum\EnumObject;
+
+   /**
+    * @method static static RED()
+    * @method static static GREEN()
+    * @method static static BLUE()
+    */
+   class Color extends EnumObject
+   {
+       const RED = 'r';
+       const GREEN = 'g';
+       const BLUE = 'b';
+   }
+
+.. NOTE::
+
+   The ``@method`` annotations are not required, but they will aid in code-completion and inspection.
+
+   See `Magic static factory methods <Using the magic static factory method_>`_.
+
+
+Creating instances
+------------------
+
+Instances can be created by one of the factory methods. Those instances are cached internally
+and reused, so that multiple calls to the factory methods with the same key or value will yield
 the same instance.
 
 Enum instances cannot be cloned.
 
 
 Using a value
--------------
+^^^^^^^^^^^^^
 
 .. code:: php
 
    <?php
 
-   $day = DayOfTheWeek::fromValue(DayOfTheWeek::MONDAY);
+   $color = Color::fromValue(Color::RED);
 
-   var_dump($day);
+   var_dump($color);
 
 Output:
 
 ::
 
-  object(DayOfTheWeek)#3 (2) {
+  object(Foo\Color)#5 (2) {
     ["key"]=>
-    string(6) "MONDAY"
+    string(3) "RED"
     ["value"]=>
-    int(0)
+    string(1) "r"
   }
 
 
 Using a key
------------
+^^^^^^^^^^^
 
 .. code:: php
 
    <?php
 
-   $day = DayOfTheWeek::fromKey('FRIDAY');
+   $color = Color::fromKey('GREEN');
 
-   var_dump($day);
+   var_dump($color);
 
 Output:
 
 ::
 
-  object(DayOfTheWeek)#3 (2) {
+  object(Foo\Color)#3 (2) {
     ["key"]=>
-    string(6) "FRIDAY"
+    string(5) "GREEN"
     ["value"]=>
-    int(4)
+    string(1) "g"
   }
 
 
 Using the magic static factory method
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Magic static factory methods may be used instead of passing constants
-to the constructor.
-
-For every key there is a static method with the same name. Calling it will
-yield an instance with value of the given key.
-
+For every key there is a static method with the same name, which returns an instance
+for that key-value pair.
 
 .. code:: php
 
    <?php
 
-   /**
-    * @method static static MONDAY()
-    * @method static static TUESDAY()
-    * @method static static WEDNESDAY()
-    * @method static static THURSDAY()
-    * @method static static FRIDAY()
-    * @method static static SATURDAY()
-    * @method static static SUNDAY()
-    */
-   class DayOfTheWeek extends Enum
-   {
-       const MONDAY = 0;
-       const TUESDAY = 1;
-       const WEDNESDAY = 2;
-       const THURSDAY = 3;
-       const FRIDAY = 4;
-       const SATURDAY = 5;
-       const SUNDAY = 6;
-   }
+   $color = Color::BLUE();
 
-   $day = DayOfTheWeek::SUNDAY();
+   var_dump($color);
 
-   var_dump($day);
 
 Output:
 
 ::
 
-  object(DayOfTheWeek)#3 (2) {
+  object(Foo\Color)#5 (2) {
     ["key"]=>
-    string(6) "SUNDAY"
+    string(4) "BLUE"
     ["value"]=>
-    int(6)
+    string(1) "b"
   }
-
 
 .. WARNING::
 
    Magic static factory method names are case-sensitive.
 
-.. NOTE::
 
-   The ``@method`` annotations are not required.
-
-   They aid IDE code-completion and inspection.
-
-
-Enum instance method overview
-=============================
+Method overview
+---------------
 
 Getting the key and value
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: php
 
    <?php
 
-   $day = DayOfTheWeek::fromValue(1);
+   $color = Color::RED();
 
    var_dump(
-       $day->key(),
-       $day->value()
+       $color->key(),
+       $color->value()
    );
 
 Output:
 
 ::
 
-  string(7) "TUESDAY"
-  int(1)
+  string(3) "RED"
+  string(1) "r"
 
 
 Getting the pair
-----------------
+^^^^^^^^^^^^^^^^
 
 .. code:: php
 
    <?php
 
-   $day = DayOfTheWeek::fromValue(2);
+   $color = Color::GREEN();
 
-   var_dump($day->pair());
+   var_dump($color->pair());
 
 Output:
 
 ::
 
   array(1) {
-    ["WEDNESDAY"]=>
-    int(2)
+    ["GREEN"]=>
+    string(1) "g"
   }
 
 
 Comparing the key and value
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: php
 
   <?php
 
-   $day = DayOfTheWeek::fromValue(DayOfTheWeek::TUESDAY);
+   $color = Color::RED();
 
    var_dump(
-       $day->is('TUESDAY'),   // compare key
-       $day->is('WEDNESDAY'), // compare key
-       $day->equals(1),       // compare value
-       $day->equals(2)        // compare value
+       $color->is('RED'),   // compare key
+       $color->is('GREEN'), // compare key
+       $color->equals('r'), // compare value
+       $color->equals('g')  // compare value
    );
 
 Output:
@@ -463,7 +479,7 @@ Output:
 
 
 String conversion
------------------
+^^^^^^^^^^^^^^^^^
 
 Converting an instance to a string will yield its value (cast to a string):
 
@@ -471,15 +487,15 @@ Converting an instance to a string will yield its value (cast to a string):
 
    <?php
 
-   $day = DayOfTheWeek::fromValue(DayOfTheWeek::THURSDAY);
+   $color = Color::BLUE();
 
-   echo $day;
+   echo $color;
 
 Output:
 
 ::
 
-  3
+  b
 
 
 Error handling
@@ -487,81 +503,12 @@ Error handling
 
 Most error states are handled by throwing an exception.
 
-All exceptions thrown by the ``Enum`` class implement ``Kuria\Enum\Exception\ExceptionInterface``.
+All exceptions thrown by the enum classes implement ``Kuria\Enum\Exception\ExceptionInterface``.
 
-
-Invalid value
--------------
-
-.. code:: php
-
-   <?php
-
-   $day = DayOfTheWeek::fromValue(123456);
-
-   // or
-
-   DayOfTheWeek::getKey(123456);
-
-Result:
-
-``Kuria\Enum\Exception\InvalidValueException`` will be thrown with the following message:
-
-  The value 123456 is not defined in enum class "DayOfTheWeek", known values: 0, 1, 2, 3, 4, 5, 6
-
-
-Invalid key
------------
-
-.. code:: php
-
-   <?php
-
-    DayOfTheWeek::fromKey('NONEXISTENT');
-
-    // or
-
-    DayOfTheWeek::getValue('NONEXISTENT');
-
-Result:
-
-``Kuria\Enum\Exception\InvalidKeyException`` will be thrown with the following message:
-
-  The key "NONEXISTENT" is not defined in enum class "DayOfTheWeek", known keys: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
-
-
-Duplicate values
-----------------
-
-.. code:: php
-
-   <?php
-
-   use Kuria\Enum\Enum;
-
-   class EnumWithDuplicateValues extends Enum
-   {
-       const FOO = 'foo';
-       const BAR = 'foo';
-   }
-
-   EnumWithDuplicateValues::getKey('foo');
-
-Result:
-
-``Kuria\Enum\Exception\DuplicateValueException`` will be thrown with the following message:
-
-  Duplicate value "foo" for key "BAR" in enum class "EnumWithDuplicateValues". Value "foo" is already defined for key "FOO".
-
-
-.. NOTE::
-
-   Values are used as array keys internally. This means that ``null`` and ``""``
-   (empty string) and also ``123`` and ``"123"`` (numeric string) are considered
-   the same value when verifying uniqueness.
-
-   See `Value type coercion`_.
-
+- ``Kuria\Enum\Exception\InvalidKeyException`` is thrown when a key doesn't exist
+- ``Kuria\Enum\Exception\InvalidValueException`` is thrown when a value doesn't exist
+- ``Kuria\Enum\Exception\InvalidMethodException`` is thrown when a magic factory method doesn't exist
+- ``Kuria\Enum\Exception\DuplicateValueException`` is thrown when an enum class defines duplicate values
 
 Value type coercion
 ===================
@@ -578,7 +525,7 @@ the following values are equal:
 
 .. NOTE::
 
-   The public API, e.g. ``Enum::getValue()`` and ``$enum->value()``,
+   The public API, e.g. ``Enum::getValue()`` and ``EnumObject::value()``,
    always returns the value as defined by the enum class.
 
 .. NOTE::
@@ -593,15 +540,15 @@ Examples
 
    <?php
 
-   use Kuria\Enum\Enum;
+   use Kuria\Enum\EnumObject;
 
-   class IntAndNullEnum extends Enum
+   class IntAndNullEnum extends EnumObject
    {
        const INT_KEY = 123;
        const NULL_KEY = null;
    }
 
-   class StringEnum extends Enum
+   class StringEnum extends EnumObject
    {
        const NUMERIC_STRING_KEY = '123';
        const EMPTY_STRING_KEY = '';

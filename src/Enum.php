@@ -16,7 +16,6 @@ use Kuria\Enum\Exception\InvalidValueException;
  * - only string, integer and null values are supported
  * - values are looked up and compared with the same type-coercion rules as PHP array keys
  * - values must be unique when used as an array key
- * - instances are cached and should be immutable
  */
 abstract class Enum
 {
@@ -51,99 +50,13 @@ abstract class Enum
     private static $valueToKeyMap = [];
 
     /**
-     * Instance cache
+     * Enums cannot be instantiated
      *
-     * Format: class => [key => instance]
-     *
-     * @var array
-     */
-    private static $instanceCache = [];
-
-    /** @var string */
-    private $key;
-
-    /** @var mixed */
-    private $value;
-
-    /**
-     * Internal constructor
-     *
-     * The key and value are assumed to be valid.
-     */
-    protected function __construct(string $key, $value)
-    {
-        $this->key = $key;
-        $this->value = $value;
-    }
-
-    /**
-     * Enum instance must not be cloned to ensure a single instance per key-value pair
-     *
+     * @see EnumObject
      * @codeCoverageIgnore
      */
-    private function __clone()
+    private function __construct()
     {
-    }
-
-    function __toString(): string
-    {
-        return (string) $this->value;
-    }
-
-    function __debugInfo(): array
-    {
-        return [
-            'key' => $this->key,
-            'value' => $this->value,
-        ];
-    }
-
-    /**
-     * Magic factory method Enum::SOME_KEY()
-     *
-     * Arguments are ignored.
-     *
-     * @throws \BadMethodCallException if method name does not correspond to a known key
-     * @return static
-     */
-    static function __callStatic(string $name, array $arguments)
-    {
-        self::ensureKeyMapLoaded();
-
-        if (!isset(self::$keyMap[static::class][$name])) {
-            throw new \BadMethodCallException(sprintf('Call to undefined static method %s::%s()', static::class, $name));
-        }
-
-        return self::$instanceCache[static::class][$name]
-            ?? (self::$instanceCache[static::class][$name] = new static($name, self::$keyToValueMap[static::class][$name]));
-    }
-
-    /**
-     * Get instance for the given key
-     *
-     * @throws InvalidKeyException if there is no such key
-     * @return static
-     */
-    static function fromKey(string $key)
-    {
-        self::ensureKey($key);
-
-        return self::$instanceCache[static::class][$key]
-            ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
-    }
-
-    /**
-     * Get instance for the given value
-     *
-     * @throws InvalidValueException if there is no such value
-     * @return static
-     */
-    static function fromValue($value)
-    {
-        $key = self::getKey($value);
-
-        return self::$instanceCache[static::class][$key]
-            ?? (self::$instanceCache[static::class][$key] = new static($key, self::$keyToValueMap[static::class][$key]));
     }
 
     /**
@@ -216,6 +129,9 @@ abstract class Enum
         return array_keys(self::$keyToValueMap[static::class]);
     }
 
+    /**
+     * Get a list of all values
+     */
     static function getValues(): array
     {
         self::ensureKeyToValueMapLoaded();
@@ -273,38 +189,14 @@ abstract class Enum
         return [$key => self::$keyToValueMap[static::class][$key]];
     }
 
+    /**
+     * Get total number of key-value pairs
+     */
     static function count(): int
     {
         self::ensureKeyToValueMapLoaded();
 
         return count(self::$keyToValueMap[static::class]);
-    }
-
-    function key(): string
-    {
-        return $this->key;
-    }
-
-    function value()
-    {
-        return $this->value;
-    }
-
-    function pair(): array
-    {
-        return [$this->key => $this->value];
-    }
-
-    function is(string $key): bool
-    {
-        return $this->key === $key;
-    }
-
-    function equals($value): bool
-    {
-        self::ensureValueToKeyMapLoaded();
-
-        return $this->key === (self::$valueToKeyMap[static::class][$value] ?? null);
     }
 
     /**
@@ -378,16 +270,6 @@ abstract class Enum
         $valueToKeyMap = [];
 
         foreach (self::$keyToValueMap[static::class] as $key => $value) {
-            assert(
-                is_int($value) || is_string($value) || is_null($value),
-                new InvalidValueException(sprintf(
-                    'Only integer, string and null values are allowed, but found %s value for key "%s" in enum class "%s"',
-                    gettype($value),
-                    $key,
-                    static::class
-                ))
-            );
-
             if (isset($valueToKeyMap[$value])) {
                 throw new DuplicateValueException(sprintf(
                     'Duplicate value %s for key "%s" in enum class "%s". Value %s is already defined for key "%s".',
@@ -426,7 +308,7 @@ abstract class Enum
         return $keyToValueMap;
     }
 
-    private static function dumpValue($value): string
+    protected static function dumpValue($value): string
     {
         if (is_string($value)) {
             return '"' . $value . '"';

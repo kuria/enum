@@ -2,12 +2,12 @@
 
 namespace Kuria\Enum\TestSubject;
 
-use Kuria\Enum\Enum;
+use Kuria\Enum\EnumObject;
 
 /**
  * @internal
  */
-abstract class IntNullEnum extends Enum
+class IntNullEnumObject extends EnumObject
 {
     const INT_KEY = 123;
     const NULL_KEY = null;

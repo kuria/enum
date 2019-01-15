@@ -1,6 +1,13 @@
 Changelog
 #########
 
+5.0.0
+*****
+
+- ``Enum`` is no longer instantiable by default
+- added ``EnumObject`` (which extends from ``Enum``) that supports instantiation
+
+
 4.0.0
 *****
 

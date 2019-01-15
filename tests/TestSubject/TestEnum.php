@@ -6,13 +6,8 @@ use Kuria\Enum\Enum;
 
 /**
  * @internal
- *
- * @method static TestEnum LOREM()
- * @method static TestEnum IPSUM()
- * @method static TestEnum DOLOR()
- * @method static TestEnum _UNKNOWN_KEY_() doesn't actually exist
  */
-class TestEnum extends Enum
+abstract class TestEnum extends Enum
 {
     const LOREM = 'foo';
     const IPSUM = 123;

@@ -1,0 +1,6 @@
+includes:
+    - vendor/kuria/dev-meta/conf/phpstan-src.neon
+
+parameters:
+    ignoreErrors:
+        - '{Kuria\\Enum\\EnumObject::__construct\(\) does not call parent constructor}A'
