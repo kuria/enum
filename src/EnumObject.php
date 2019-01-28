@@ -105,6 +105,23 @@ abstract class EnumObject extends Enum
     }
 
     /**
+     * Get instance for each defined key-value pair
+     *
+     * @return static[]
+     */
+    static function all(): array
+    {
+        $instances = [];
+
+        foreach (static::getMap() as $key => $value) {
+            $instances[$key] = self::$instanceCache[static::class][$key]
+                ?? (self::$instanceCache[static::class][$key] = new static($key, $value));
+        }
+
+        return $instances;
+    }
+
+    /**
      * Get key of this key-value pair
      */
     function key(): string

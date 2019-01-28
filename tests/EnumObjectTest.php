@@ -47,6 +47,19 @@ class EnumObjectTest extends Test
         $this->assertSame($instance, TestEnumObject::$key());
     }
 
+    function testShouldGetAllInstances()
+    {
+        $instances = TestEnumObject::all();
+        $expectedInstances = [
+            'LOREM' => TestEnumObject::LOREM(),
+            'IPSUM' => TestEnumObject::IPSUM(),
+            'DOLOR' => TestEnumObject::DOLOR(),
+        ];
+
+        $this->assertSame($expectedInstances, $instances);
+        $this->assertSame($expectedInstances, TestEnumObject::all()); // should return cached instances
+    }
+
     function testShouldNotBeCloneaeble()
     {
         $this->assertFalse((new \ReflectionClass(TestEnumObject::class))->isCloneable());

@@ -1,6 +1,12 @@
 Changelog
 #########
 
+5.1.0
+*****
+
+- added ``EnumObject::all()``
+
+
 5.0.0
 *****
 

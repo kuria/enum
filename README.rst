@@ -406,6 +406,44 @@ Output:
    Magic static factory method names are case-sensitive.
 
 
+Getting all instances
+^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: php
+
+   <?php
+
+   var_dump(Color::all());
+
+Output:
+
+::
+
+  array(3) {
+    ["RED"]=>
+    object(Foo\Color)#5 (2) {
+      ["key"]=>
+      string(3) "RED"
+      ["value"]=>
+      string(1) "r"
+    }
+    ["GREEN"]=>
+    object(Foo\Color)#4 (2) {
+      ["key"]=>
+      string(5) "GREEN"
+      ["value"]=>
+      string(1) "g"
+    }
+    ["BLUE"]=>
+    object(Foo\Color)#2 (2) {
+      ["key"]=>
+      string(4) "BLUE"
+      ["value"]=>
+      string(1) "b"
+    }
+  }
+
+
 Method overview
 ---------------
 
